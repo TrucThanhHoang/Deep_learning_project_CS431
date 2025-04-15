@@ -30,6 +30,14 @@ The crucial constraints for optimization are implemented in the function `p_loss
 conda env create -f environment.yml
 conda activate ldm
 git clone https://github.com/CompVis/stable-diffusion.git
+git clone https://github.com/CompVis/taming-transformers.git
+pip install -e taming-transformers
+pip install google-search-results
+mkdir -p checkpoints  
+wget https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.ckpt -P checkpoints/
+
+mkdir -p real_reg/samples_cat_dog/images
+python src/retrieve.py --class_prompt "<new1> cat and <new2> dog" --class_data_dir "real_reg/samples_cat_dog" --num_class_images 5 --api_key ""
 ```
 
 ## Fine-tuning
