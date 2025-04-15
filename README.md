@@ -50,30 +50,3 @@ bash eval.sh
 ```
 The `run.sh` and `eval.sh` scripts include several hyperparameters such as `classes` in the input image,`data_path`, `save_path`, training `caption`, random `seed`, and more. Please modify these executable files to suit your specific requirements.
 
-
-## Contact Us
-**Yanbing Zhang**: [zhangyanbing@mail.ecust.edu.cn](mailto:zhangyanbing@mail.ecust.edu.cn)  
-**Mengping Yang**: [kobeshegu@gmail.com](mailto:kobeshegu@gmail.com)  
-
-## BibTeX
-```
-@article{zhang2024attention,
-  title={Attention Calibration for Disentangled Text-to-Image Personalization},
-  author={Zhang, Yanbing and Yang, Mengping and Zhou, Qin and Wang, Zhe},
-  journal={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
-  year={2024}
-}
-```
-
-## Acknowledgement
-Our code is built upon the excellent codebase of [Custom-Diffusion](https://github.com/adobe-research/custom-diffusion), we thank a lot for their work.
-We also kindly refer interesting researchers to these wonderful relted works:
-
-* [DreamBooth](https://dreambooth.github.io/)
-* [Break-A-Scene](https://omriavrahami.com/break-a-scene/)
-* [Textual Inversion](https://textual-inversion.github.io/)
-
-We also thank the anonymous reviewers for their valuable suggestions during the rebuttal, which greatly help us improve the paper.
-
-## Disclaimer
-This project is released for academic use. We disclaim responsibility for user-generated content. Users are solely liable for their actions. The project contributors are not legally affiliated with, nor accountable for, users' behaviors. Use the generative model responsibly, adhering to ethical and legal standards. 
