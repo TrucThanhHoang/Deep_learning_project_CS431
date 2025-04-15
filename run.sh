@@ -12,8 +12,6 @@ save_path=DisenDiff/$classes
 class_prompt="a cat and a dog"
 
 
-python src/retrieve.py --class_prompt "$class_prompt" --class_data_dir real_reg/samples_${classes}
-
 python -u  train.py \
         --base configs/$fine_yaml  \
         -t --gpus=1 \
