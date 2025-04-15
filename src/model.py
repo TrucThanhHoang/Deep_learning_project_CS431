@@ -4,8 +4,8 @@
 #
 # ==========================================================================================
 #
-# Adobe’s modifications are Copyright 2022 Adobe Research. All rights reserved.
-# Adobe’s modifications are licensed under the Adobe Research License. To view a copy of the license, visit
+# Adobe's modifications are Copyright 2022 Adobe Research. All rights reserved.
+# Adobe's modifications are licensed under the Adobe Research License. To view a copy of the license, visit
 # LICENSE.md.
 #
 # ==========================================================================================
@@ -62,7 +62,7 @@
 # Section IV: OTHER PROVISIONS
 
 # 7. Updates and Runtime Restrictions. To the maximum extent permitted by law, Licensor reserves the right to restrict (remotely or otherwise) usage of the Model in violation of this License, update the Model through electronic means, or modify the Output of the Model based on updates. You shall undertake reasonable efforts to use the latest version of the Model.
-# 8. Trademarks and related. Nothing in this License permits You to make use of Licensors’ trademarks, trade names, logos or to otherwise suggest endorsement or misrepresent the relationship between the parties; and any rights not expressly granted herein are reserved by the Licensors.
+# 8. Trademarks and related. Nothing in this License permits You to make use of Licensors' trademarks, trade names, logos or to otherwise suggest endorsement or misrepresent the relationship between the parties; and any rights not expressly granted herein are reserved by the Licensors.
 # 9. Disclaimer of Warranty. Unless required by applicable law or agreed to in writing, Licensor provides the Model and the Complementary Material (and each Contributor provides its Contributions) on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are solely responsible for determining the appropriateness of using or redistributing the Model, Derivatives of the Model, and the Complementary Material and assume any risks associated with Your exercise of permissions under this License.
 # 10. Limitation of Liability. In no event and under no legal theory, whether in tort (including negligence), contract, or otherwise, unless required by applicable law (such as deliberate and grossly negligent acts) or agreed to in writing, shall any Contributor be liable to You for damages, including any direct, indirect, special, incidental, or consequential damages of any character arising as a result of this License or out of the use or inability to use the Model and the Complementary Material (including but not limited to damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses), even if such Contributor has been advised of the possibility of such damages.
 # 11. Accepting Warranty or Additional Liability. While redistributing the Model, Derivatives of the Model and the Complementary Material thereof, You may choose to offer, and charge a fee for, acceptance of support, warranty, indemnity, or other liability obligations and/or rights consistent with this License. However, in accepting such obligations, You may act only on Your own behalf and on Your sole responsibility, not on behalf of any other Contributor, and only if You agree to indemnify, defend, and hold each Contributor harmless for any liability incurred by, or claims asserted against, such Contributor by reason of your accepting any such warranty or additional liability.
@@ -83,7 +83,7 @@
 # - To generate or disseminate verifiably false information and/or content with the purpose of harming others;
 # - To generate or disseminate personal identifiable information that can be used to harm an individual;
 # - To defame, disparage or otherwise harass others;
-# - For fully automated decision making that adversely impacts an individual’s legal rights or otherwise creates or modifies a binding, enforceable obligation;
+# - For fully automated decision making that adversely impacts an individual's legal rights or otherwise creates or modifies a binding, enforceable obligation;
 # - For any use intended to or which has the effect of discriminating against or harming individuals or groups based on online or offline social behavior or known or predicted personal or personality characteristics;
 # - To exploit any of the vulnerabilities of a specific group of persons based on their age, social, physical or mental characteristics, in order to materially distort the behavior of a person pertaining to that group in a manner that causes or is likely to cause that person or another person physical or psychological harm;
 # - For any use intended to or which has the effect of discriminating against individuals or groups based on legally protected characteristics or categories;
@@ -345,7 +345,6 @@ class CustomDiffusion(LatentDiffusion):
         return opt
 
     def p_losses(self, x_start, cond, t, origin_prompt=None, image_input=None, mask=None, noise=None, mask_background_image=None):
-
         noise = default(noise, lambda: torch.randn_like(x_start))
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
         model_output = self.apply_model(x_noisy, t, cond)
@@ -370,17 +369,15 @@ class CustomDiffusion(LatentDiffusion):
 
         logvar_t = (self.logvar.to(self.device))[t]
         loss = loss_simple / torch.exp(logvar_t) + logvar_t
-        # loss = loss_simple / torch.exp(self.logvar) + self.logvar
         if self.learn_logvar:
             loss_dict.update({f'{prefix}/loss_gamma': loss.mean()})
             loss_dict.update({'logvar': self.logvar.data.mean()})
 
         loss = self.l_simple_weight * loss.mean()
         
-        if self.controller is not None and ('<new1>' in origin_prompt[0] or '<new1>' in origin_prompt[1]):
-
+        if self.controller is not None and origin_prompt is not None and len(origin_prompt) >= 2 and ('<new1>' in origin_prompt[0] or '<new1>' in origin_prompt[1]):
             batch_encoding = self.cond_stage_model.tokenizer(origin_prompt, truncation=True, max_length=self.cond_stage_model.max_length, return_length=True,
-                                        return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
+                                          return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
             tokens = batch_encoding["input_ids"].to(self.device)
             len_add_token = len(self.cond_stage_model.modifier_token_id)
             
