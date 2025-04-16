@@ -8,8 +8,8 @@ FILE PDF: [DisenDiff](https://arxiv.org/abs/2403.18551)
 </p>
 </div>
 
-##Update(Cập nhật)
-Update các file src/retrieve.py (API của lation không còn hoạt động), run.sh. 
+## Update(Cập nhật)
+Update các file src/retrieve.py (API của lation không còn hoạt động nên sử dụng API của serpapi/ Lation's API doesn't work using serpapi instead). 
 
 ## Datasets
 The training images are located in `datasets/images`, the test prompts are located in `datasets/prompts`, and the processed images for evaluating image-alignment can be found in `datasets/data_eval`.
