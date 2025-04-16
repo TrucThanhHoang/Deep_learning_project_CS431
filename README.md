@@ -8,7 +8,7 @@ FILE PDF: [DisenDiff](https://arxiv.org/abs/2403.18551)
 </p>
 </div>
 
-##Update (Cập nhật)
+##Update(Cập nhật)
 Update các file src/retrieve.py (API của lation không còn hoạt động), run.sh. 
 
 ## Datasets
