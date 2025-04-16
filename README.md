@@ -1,10 +1,6 @@
 # DisenDiff
 
-This repository is the official implementation of [DisenDiff](https://arxiv.org/abs/2403.18551) [CVPR-2024 Oral Presentation].
-
-> **Attention Calibration for Disentangled Text-to-Image Personalization** <br>
-> Yanbing Zhang, Mengping Yang, Qin Zhou, Zhe Wang<br>
-> [pdf](https://arxiv.org/abs/2403.18551)
+FILE PDF: [DisenDiff](https://arxiv.org/abs/2403.18551) 
 
 <div>
 <p align="center">
