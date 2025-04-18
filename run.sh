@@ -8,7 +8,7 @@ fine_yaml=full.yaml
 seed=1 
 suffix="full_${seed}"
 name=$classes_${suffix}
-save_path=DisenDiff/$classes
+save_path=/content/drive/MyDrive/DisenDiff/$classes
 class_prompt="a cat and a dog"
 
 
