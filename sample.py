@@ -4,8 +4,8 @@
 #
 # ==========================================================================================
 #
-# Adobe’s modifications are Copyright 2022 Adobe Research. All rights reserved.
-# Adobe’s modifications are licensed under the Adobe Research License. To view a copy of the license, visit
+# Adobe's modifications are Copyright 2022 Adobe Research. All rights reserved.
+# Adobe's modifications are licensed under the Adobe Research License. To view a copy of the license, visit
 # LICENSE.md.
 #
 # ==========================================================================================
@@ -62,7 +62,7 @@
 # Section IV: OTHER PROVISIONS
 
 # 7. Updates and Runtime Restrictions. To the maximum extent permitted by law, Licensor reserves the right to restrict (remotely or otherwise) usage of the Model in violation of this License, update the Model through electronic means, or modify the Output of the Model based on updates. You shall undertake reasonable efforts to use the latest version of the Model.
-# 8. Trademarks and related. Nothing in this License permits You to make use of Licensors’ trademarks, trade names, logos or to otherwise suggest endorsement or misrepresent the relationship between the parties; and any rights not expressly granted herein are reserved by the Licensors.
+# 8. Trademarks and related. Nothing in this License permits You to make use of Licensors' trademarks, trade names, logos or to otherwise suggest endorsement or misrepresent the relationship between the parties; and any rights not expressly granted herein are reserved by the Licensors.
 # 9. Disclaimer of Warranty. Unless required by applicable law or agreed to in writing, Licensor provides the Model and the Complementary Material (and each Contributor provides its Contributions) on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are solely responsible for determining the appropriateness of using or redistributing the Model, Derivatives of the Model, and the Complementary Material and assume any risks associated with Your exercise of permissions under this License.
 # 10. Limitation of Liability. In no event and under no legal theory, whether in tort (including negligence), contract, or otherwise, unless required by applicable law (such as deliberate and grossly negligent acts) or agreed to in writing, shall any Contributor be liable to You for damages, including any direct, indirect, special, incidental, or consequential damages of any character arising as a result of this License or out of the use or inability to use the Model and the Complementary Material (including but not limited to damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses), even if such Contributor has been advised of the possibility of such damages.
 # 11. Accepting Warranty or Additional Liability. While redistributing the Model, Derivatives of the Model and the Complementary Material thereof, You may choose to offer, and charge a fee for, acceptance of support, warranty, indemnity, or other liability obligations and/or rights consistent with this License. However, in accepting such obligations, You may act only on Your own behalf and on Your sole responsibility, not on behalf of any other Contributor, and only if You agree to indemnify, defend, and hold each Contributor harmless for any liability incurred by, or claims asserted against, such Contributor by reason of your accepting any such warranty or additional liability.
@@ -83,7 +83,7 @@
 # - To generate or disseminate verifiably false information and/or content with the purpose of harming others;
 # - To generate or disseminate personal identifiable information that can be used to harm an individual;
 # - To defame, disparage or otherwise harass others;
-# - For fully automated decision making that adversely impacts an individual’s legal rights or otherwise creates or modifies a binding, enforceable obligation;
+# - For fully automated decision making that adversely impacts an individual's legal rights or otherwise creates or modifies a binding, enforceable obligation;
 # - For any use intended to or which has the effect of discriminating against or harming individuals or groups based on online or offline social behavior or known or predicted personal or personality characteristics;
 # - To exploit any of the vulnerabilities of a specific group of persons based on their age, social, physical or mental characteristics, in order to materially distort the behavior of a person pertaining to that group in a manner that causes or is likely to cause that person or another person physical or psychological harm;
 # - For any use intended to or which has the effect of discriminating against individuals or groups based on legally protected characteristics or categories;
@@ -467,13 +467,13 @@ def main():
         default=False,
         help="",
     )
+    parser.add_argument(
+        "--diffusion_with_mask",
+        action='store_true',
+        default=False,
+        help="use diffusion with mask",
+    )
 
-    # parser.add_argument(
-    #     "--diffusion_with_mask",
-    #     action='store_true',
-    #     default=False,
-    #     help="",
-    # )
     opt = parser.parse_args()
 
     if opt.wandb_log:
@@ -554,8 +554,6 @@ def main():
         sample_path = os.path.join(outpath, opt.file_name)
     elif opt.check_token_attn:
         sample_path = os.path.join(outpath, "check_token_attn_sample")
-    # elif opt.file_name is not None:
-    #     sample_path = os.path.join(outpath, opt.file_name)
     else:
         sample_path = os.path.join(outpath, "samples")
 
@@ -574,25 +572,20 @@ def main():
                 for prompts in tqdm(data, desc="data"):
                     all_samples = list()
                     for n in trange(opt.n_iter, desc="Sampling"):
-                        # if model.controller is not None:
-                        #     model.controller.between_steps()
                         print(prompts[0])
                         uc = None
                         timesteps = [(1+step*(int(1000/opt.ddim_steps))) for step in range(opt.ddim_steps)]
                         if opt.scale != 1.0:
                             for timestep in timesteps:
                                 ts = torch.full((opt.n_samples,), timestep, device=device, dtype=torch.long)
-                                uc = model.get_learned_conditioning(batch_size * [""], ts)
+                                uc = model.get_learned_conditioning(batch_size * [""])
+                                c = model.get_learned_conditioning(prompts)
                         if isinstance(prompts, tuple):
                             prompts = list(prompts)
-                        c = model.get_learned_conditioning(prompts)
                         shape = [opt.C, opt.H // opt.f, opt.W // opt.f]
                         if opt.diffusion_with_mask:
                             x0 = None
                             mask = None
-                            # x0, mask = load_x0_and_mask(model)
-                            # x0 = x0.cuda()
-                            # mask = mask.cuda()
                         else:
                             x0 = None
                             mask = None
@@ -607,7 +600,6 @@ def main():
                                                          x_T=start_code,
                                                          x0=x0,
                                                          mask=mask)
-                        # print(samples_ddim.size())
                         x_samples_ddim = model.decode_first_stage(samples_ddim)
                         x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
                         x_samples_ddim = x_samples_ddim.cpu()
@@ -625,12 +617,10 @@ def main():
                             all_samples.append(x_samples_ddim)
 
                     if not opt.skip_grid:
-                        # additionally, save as grid
                         grid = torch.stack(all_samples, 0)
                         grid = rearrange(grid, 'n b c h w -> (n b) c h w')
                         grid = make_grid(grid, nrow=n_rows)
 
-                        # to image
                         grid = 255. * rearrange(grid, 'c h w -> h w c').cpu().numpy()
                         img = Image.fromarray(grid.astype(np.uint8))
                         sampling_method = 'plms' if opt.plms else 'ddim'
