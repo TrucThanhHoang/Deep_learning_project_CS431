@@ -1,10 +1,10 @@
-experiment_name='2025-04-18T04-25-19_full_1' # the trained experiment dir name
+experiment_name='2023-11-23T11-18-37_full_1' # the trained experiment dir name
 classes=cat_dog  # the input image
 pretrained_model_path=checkpoints/v1-5-pruned.ckpt
 datapath=datasets/images/$classes
 newtoken=2 # the number of new tokens
 seed=1 
-save_path=/content/drive/MyDrive/DisenDiff/$classes
+save_path=DisenDiff/$classes
 
 
 # save the changed params
@@ -319,6 +319,84 @@ cat $evaluate_path/text_alignment.txt >> $all_eval_file_path
 
 
 
+
+
+
+
+
+echo '#################################subject3###############################' >>  $all_eval_file_path
+
+########################### subject3 (man)
+evaluate_path=$save_path/$experiment_name/evaluate_$subject3_file_name
+sample_path=$save_path/$experiment_name/$subject3_file_name
+mkdir $evaluate_path
+real_data_dir=datasets/data_eval/${classes}/subject3
+
+################### text align score
+file_count=0
+while read line
+do  
+    prompt=$(echo "$line" | sed 's/<new[0-9]\+>//g' | tr -s ' ' | sed 's/^ //;s/ $//')
+    filename_=${line// /_}  
+    file_name=$(echo $filename_ | sed 's/ /_/g' | sed 's/<//g' | sed 's/>//g') 
+
+    mkdir $evaluate_path/$file_name
+    dest_dir=$evaluate_path/$file_name
+    file_count_max=$(echo "$file_count + 15" | bc)
+    
+    for i in $(seq $file_count $file_count_max);
+    do  
+        image_name=$(printf "%05d" "$i").png
+        cp "$sample_path/$image_name" "$dest_dir"
+    done
+
+    file_count_max_minus1=$(($file_count_max - 1))
+    echo "{$(for i in $(seq $file_count $file_count_max_minus1);do image_name=$(printf "%05d" "$i").png; echo "\"$image_name\":\"$prompt\",";done)" > $evaluate_path/$file_name.json
+    image_name=$(printf "%05d" "$file_count_max").png; echo "\"$image_name\":\"$prompt\"}" >> $evaluate_path/$file_name.json
+
+    python utils/clipscore/clipscore.py $evaluate_path/$file_name.json $evaluate_path/$file_name
+
+    file_count=$(($file_count + 16))
+done < $prompts_subject3_path
+
+# Xử lý dòng cuối của subject3
+line=$(tail -n 1 $prompts_subject3_path)
+prompt=$(echo "$line" | sed 's/<new[0-9]\+>//g' | tr -s ' ' | sed 's/^ //;s/ $//')
+filename_=${line// /_}  
+file_name=$(echo $filename_ | sed 's/ /_/g' | sed 's/<//g' | sed 's/>//g') 
+
+mkdir $evaluate_path/$file_name
+dest_dir=$evaluate_path/$file_name
+file_count_max=$(echo "$file_count + 15" | bc)
+
+for i in $(seq $file_count $file_count_max);
+do  
+    image_name=$(printf "%05d" "$i").png
+    cp "$sample_path/$image_name" "$dest_dir"
+done
+
+file_count_max_minus1=$(($file_count_max - 1))
+echo "{$(for i in $(seq $file_count $file_count_max_minus1);do image_name=$(printf "%05d" "$i").png; echo "\"$image_name\":\"$prompt\",";done)" > $evaluate_path/$file_name.json
+image_name=$(printf "%05d" "$file_count_max").png; echo "\"$image_name\":\"$prompt\"}" >> $evaluate_path/$file_name.json
+
+python utils/clipscore/clipscore.py $evaluate_path/$file_name.json $evaluate_path/$file_name
+
+content=$(cat $evaluate_path/text_alignment.txt)
+arr=($content)
+
+sum=0
+for num in ${arr[@]} 
+do
+    sum=$(echo "$sum + $num" | bc)
+done
+
+average=$(echo "$sum ${#arr[@]}" | awk '{print $1 / $2}')
+echo $average >> $evaluate_path/text_alignment.txt
+
+#################### image align score
+python utils/clip_eval.py --real_data_dir $real_data_dir --fake_data_dir $evaluate_path --prompts_path $prompts_subject3_path
+
+cat $evaluate_path/text_alignment.txt >> $all_eval_file_path
 
 
 

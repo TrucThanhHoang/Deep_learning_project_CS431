@@ -1,8 +1,8 @@
-experiment_name='2025-04-18T04-25-19_full_1' # the trained experiment dir name
-classes=cat_dog  # the input image
+experiment_name='2025-04-18T16-19-38_full_1' # the trained experiment dir name
+classes=cow_pig_man  # the input image
 pretrained_model_path=checkpoints/v1-5-pruned.ckpt
 datapath=datasets/images/$classes
-newtoken=2 # the number of new tokens
+newtoken=3 # the number of new tokens
 seed=1 
 save_path=/content/drive/MyDrive/DisenDiff/$classes
 
@@ -14,6 +14,7 @@ python src/get_deltas.py --path $save_path/$experiment_name --newtoken $newtoken
 prompts_global_path=datasets/prompts/${classes}_global.txt
 prompts_subject1_path=datasets/prompts/${classes}_subject1.txt
 prompts_subject2_path=datasets/prompts/${classes}_subject2.txt
+prompts_subject3_path=datasets/prompts/${classes}_subject3.txt
 
 
 global_file_name=val_global
@@ -25,11 +26,12 @@ python sample.py --delta_ckpt $save_path/$experiment_name/checkpoints/delta_epoc
 subject2_file_name=val_subject2
 python sample.py --delta_ckpt $save_path/$experiment_name/checkpoints/delta_epoch\=000004.ckpt --ckpt $pretrained_model_path --ddim_steps 50  --skip_grid --n_samples 4 --from-file $prompts_subject2_path --n_iter 4 --file_name $subject2_file_name
 
+subject3_file_name=val_subject3
+python sample.py --delta_ckpt $save_path/$experiment_name/checkpoints/delta_epoch\=000004.ckpt --ckpt $pretrained_model_path --ddim_steps 50  --skip_grid --n_samples 4 --from-file $prompts_subject3_path --n_iter 4 --file_name $subject3_file_name
 
 
 
-
-all_eval_file_path=$save_path/$experiment_name/global_subject1_subject2.txt
+all_eval_file_path=$save_path/$experiment_name/global_subject1_subject2_subject3.txt
 touch $all_eval_file_path
 echo '#################################global###############################' >>  $all_eval_file_path
 
@@ -311,6 +313,19 @@ echo $average >> $evaluate_path/text_alignment.txt
 
 
 ####################      image align score
+
+python utils/clip_eval.py --real_data_dir $real_data_dir --fake_data_dir $evaluate_path --prompts_path $prompts_subject2_path
+
+
+cat $evaluate_path/text_alignment.txt >> $all_eval_file_path
+
+
+
+
+
+
+
+
 echo '#################################subject3###############################' >>  $all_eval_file_path
 
 ########################### subject3 (man)
@@ -384,14 +399,6 @@ echo $average >> $evaluate_path/text_alignment.txt
 python utils/clip_eval.py --real_data_dir $real_data_dir --fake_data_dir $evaluate_path --prompts_path $prompts_subject3_path
 
 cat $evaluate_path/text_alignment.txt >> $all_eval_file_path
-
-python utils/clip_eval.py --real_data_dir $real_data_dir --fake_data_dir $evaluate_path --prompts_path $prompts_subject2_path
-
-
-cat $evaluate_path/text_alignment.txt >> $all_eval_file_path
-
-
-
 
 
 
