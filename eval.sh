@@ -4,7 +4,7 @@ pretrained_model_path=checkpoints/v1-5-pruned.ckpt
 datapath=datasets/images/$classes
 newtoken=2 # the number of new tokens
 seed=1 
-save_path=DisenDiff/$classes
+save_path=/content/drive/MyDrive/DisenDiff/$classes
 
 
 # save the changed params
